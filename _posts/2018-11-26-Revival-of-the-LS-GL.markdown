@@ -11,7 +11,7 @@ categories: project
 
 ## Install Original Linkstation Pro 1.15 firmware
 - On a Windows 7 Virtual Machine or Windows 7 computer:
-  - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror]({{ site.url }}/_files/TFTP Boot Recovery LS-GL 1.11.exe)) and unpack it.
+  - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror]({{ site.url }}/_files/TFTP_Boot_Recovery_LS-GL_1.11.exe)) and unpack it.
   - Plug your Linkstation directly to the LAN-Port of your computer.  
     When you are on a VM make sure you have a second network adapter using bridged mode activated.
   - Change the IP adress of your computer (for the bridged network adapter) to 192.168.11.2
