@@ -9,7 +9,7 @@ categories: project
 * Start the Linkstation. It will beep high-low to show it can't find boot files.
 * Use TFTP package from Buffalo to install orginial uImage.buffalo and initrd.buffalo
 * Use Firmware Updater 1.15 to install original firmware and make sure to enable Debug options and activating update boot
-* Pull Debian 9 package from Website to Diskstation (in share folder for example)
+* Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Diskstation (in share folder for example)
 * use telnet to copy config-debian to /boot
 
 
