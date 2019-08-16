@@ -5,13 +5,24 @@ date:   2018-11-26 16:21:41 +0200
 categories: project
 ---
 
-* Plug in empty disk into Linkstation
-* Start the Linkstation. It will beep high-low to show it can't find boot files.
-* Use TFTP package from Buffalo to install orginial uImage.buffalo and initrd.buffalo
-* Use Firmware Updater 1.15 to install original firmware and make sure to enable Debug options and activating update boot
-* Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Diskstation (in share folder for example)
-* use telnet to copy config-debian to /boot
+- Insert an empty harddrive into the Linkstation and start it.  
+  When starting the Linkstation now, it will beep high-low to show it can't find the boot loader.
+  Turn off again
 
+## Install Original Linkstation Pro 1.15 firmware
+- On a Windows 7 Virtual Machine or Windows 7 computer:
+  - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror](TFTP Boot Recovery LS-GL 1.11.exe)) and unpack it.
+  - Plug your Linkstation directly to the LAN-Port of your computer.  
+    When you are on a VM make sure you have a second network adapter using bridged mode activated.
+  - Change the IP adress of your computer (for the bridged network adapter) to 192.168.11.2
+  - Start the TFTP software, then start the Linkstation  
+    TFTP should recognize the Linkstation and start copying the original uImage.buffalo and initrd.buffalo files.
+  - Download the Firmware Updater 1.15 from Buffalo website ([Mirror](LS-GL_fw1.15.zip))
+  - Use Firmware Updater 1.15 to install original firmware and make sure to enable Debug options and activating update boot
+  
+## Install Debian 9 over the original firmware
+- Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Diskstation (in share folder for example)
+- use telnet to copy config-debian to /boot
 
 {% highlight bash %}
 run sh config-debian
@@ -22,6 +33,8 @@ run sh config-debian
 * copy debians uImage und initrd.buffalo into boot
 * reboot
 * ssh to Linkstation and install
+
+## Install Debian 9 directly on a blank Linkstation harddrive
 
 
 # Debian 9 Lack of RAM problem
@@ -78,13 +91,13 @@ https://www.debian.org/releases/stretch/amd64/ch03s04.html.en
 
 The LS-GL power supply uses a 5-pin connector to power the circuit boards and fans.
 
-
+```
 1 - red (5V) - 3
 2 - black (GND) - 4
 3 - black (GND) - 5
 4 - black (GND) - 6
 5 - orange (12V) - 7
-
+```
 
 # Reinstalling the Linkstation when already runninb Debian
 
