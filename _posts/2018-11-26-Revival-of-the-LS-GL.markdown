@@ -14,14 +14,14 @@ categories: project
   - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror]({{ site.url }}/files/TFTP_Boot_Recovery_LS-GL_1.11.exe)) and unpack it.
   - Plug your Linkstation directly to the LAN-Port of your computer.  
     When you are on a VM make sure you have a second network adapter using bridged mode activated.
-  - Change the IP adress of your computer (for the bridged network adapter) to 192.168.11.2
+  - Change the IP adress of your computer (for the bridged network adapter) to 192.168.11.1 and subnetmask to 255.255.255.0
   - Start the TFTP software, then start the Linkstation  
     TFTP should recognize the Linkstation and start copying the original uImage.buffalo and initrd.buffalo files.
   - Download the Firmware Updater 1.15 from Buffalo website ([Mirror]({{ site.url }}/files/LS-GL_fw1.15.zip))
-  - Use Firmware Updater 1.15 to install original firmware and make sure to enable Debug options and activating update boot
+  - Use Firmware Updater 1.15 to install original firmware and make sure to enable `Debug` option and to activate `update boot`
   
 ## Install Debian 9 over the original firmware
-- Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Diskstation (in share folder for example)
+- Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Linkstation (in share folder for example)
 - use telnet to copy config-debian to /boot
 
 {% highlight bash %}
@@ -99,7 +99,7 @@ The LS-GL power supply uses a 5-pin connector to power the circuit boards and fa
 5 - orange (12V) - 7
 ```
 
-# Reinstalling the Linkstation when already runninb Debian
+# Reinstalling the Linkstation when already running Debian
 
 login using ssh
 make sure to have the installers uImage.buffalo and initrd.buffalo copied on the linkstation
