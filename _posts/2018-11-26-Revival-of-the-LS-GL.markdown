@@ -54,18 +54,27 @@ On the Windows 7 Virtual Machine:
 - Turn firewall back on.
 
 ## Install Debian 9 over the original firmware
-- Pull Debian 9 package from [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/netboot/buffalo/lspro_ls-gl/) to Linkstation (in share folder for example)
-- use telnet to copy config-debian to /boot
+- Download the Debian 9 package from the official [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/network-console/buffalo/lspro_ls-gl/ ).
+- Copy the 3 files to your Linkstation (for e.g. `share`)
+- connect via telnet to your Linkstation
 
-{% highlight bash %}
+```
+# change into /boot
+cd /boot
+# rename original boot files
+mv uImage.buffalo uImage.buffalo.orig
+mv uinitrd.buffalo uinitrd.buffalo.orig
+# get the config script and the debian uImage and initrd
+cp /mnt/disk1/share/config-debian .
+cp /mnt/disk1/share/uImage.buffalo .
+cp /mnt/disk1/share/uinitrd.buffalo .
+# run the config script
 run sh config-debian
-{% endhighlight %}
+# reboot
+```
+- After rebooting, find out the IP of the linkstation again
+- ssh to Linkstation with user `installer` and password `install`
 
-* mv uImage.buffalo -> uImage.buffalo.tmp
-* mv uinitrd.buffalo -> initrd.buffalo.tmp
-* copy debians uImage und initrd.buffalo into boot
-* reboot
-* ssh to Linkstation and install
 
 ## Install Debian 9 directly on a blank Linkstation harddrive
 
