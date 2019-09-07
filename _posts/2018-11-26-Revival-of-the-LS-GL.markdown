@@ -1,55 +1,66 @@
 ---
 layout: post
-title:  "The Revival of my Linkstation Pro with Debian 9.22"
+title:  "The Revival of my Linkstation Pro with Debian 9.9"
 date:   2018-11-26 16:21:41 +0200
 categories: project
 ---
 
 ## Preparation of the Linkstation
 Insert an empty harddrive into the Linkstation.  
-When starting the Linkstation now, it will beep high-low to show it can't find the boot loader.
+When starting the Linkstation now, it will beep high-low meaning that it can't find the boot loader.
 Turn off again (unplug power).
 
 ## Development computer
-The software I will be using here is quite old and unfortunately does not run correctly under Windows 10.
-Activating the compatibility mode didn't have any effect for me.
-Therefore, I will be using a Windows 7 Virtual Machine on VirtualBox for the following.  
+The software by Buffalo for maintaining the Linkstation is quite old and unfortunately does not run correctly under Windows 10. Even activating the compatibility mode does not help for it.
 
-When you have a Wifi and an Ethernet adapter, you can forward the Wifi into the 
-Virtual Machine using NAT settings and you can forward your Ethernet adapter in bridged mode.  
+I found two ways to make the software run on modern computers:
+1. run it on a Windows 7 virtual machine (VM) 
+2. run it on Linux using Wine.
+
+### Setting up the network adapters
+
+I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter. Then you can configure the Ethernet adapter to use the IP adress 192.168.11.1 and subnetmask 255.255.255.0. This is required as the Linkstation will be connected directly to the computer without a router providing DHCP. 
+
+When using an VM, forward the Wifi adapter into the Virtual Machine using NAT settings. Forward the Ethernet adapter in bridged mode. In the VM change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
+
 This setup allows you to access your network and internet normally over Wifi while connecting
 directly to the Linkstation over Ethernet at the same time.
 
 ## Install Original Linkstation Pro 1.15 firmware
-On the Windows 7 Virtual Machine:
+
+### Using the Windows 7 VM:
+
 - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror]({{ site.url }}/files/TFTP_Boot_Recovery_LS-GL_1.11.exe)) and unpack it.
 - Download the Firmware Updater 1.15 from the Buffalo website ([Mirror]({{ site.url }}/files/LS-GL_fw1.15.zip))
-- Plug your Linkstation directly to the LAN-Port of your computer.  
-  When you are on a VM make sure you have a second network adapter using bridged mode activated.
-- Change the IP adress of your computer (for the bridged network adapter) to 192.168.11.1 and subnetmask to 255.255.255.0
+- Connect your Linkstation directly to the LAN-Port of your computer and make sure you have setup the Ethernet adapter as described above.  
 - Start the `TFTP Boot.exe` software, then start the Linkstation.
   The Linkstation probably will beep high-low again and TFTP should recognize the Linkstation
   and start copying the original uImage.buffalo and initrd.buffalo files.
   You can turn off the beeping by shortly pressing the power button.
   When copying is finished, you can close the shell window, but leave the Linkstation powered on.
 - Start the `LSUpdater.exe` software. It should find the Linkstation connected to your computer.  
-  Note, that it might take seconds to minutes to find the Linkstation, so even when the Updater shows an error that it can't find
-  the Linkstation, try several times.
-- When the installation of the original Firmware is done, turn it off by long-pressing the power button, connect it to your router
-  and turn on again.
-- You can now login into the webinterface. The web interface might be japanese, but you can simply login using the default credentials (admin, password)
+  Note, that it might take seconds to minutes to find the Linkstation, so even when the Updater shows an error that it can't find the Linkstation, try several times.
+- When the installation of the original Firmware is done, turn it off by long-pressing the power button, connect it to your router and turn on again.
+- You can now login into the webinterface. The web interface might be japanese, but you can simply login using the default credentials (`admin`, `password`)
   The second menu point gives you the posibility to change to the language you need.
 
+### Using Wine on Linux
+
+
+
 ## Activate telnet on the original firmware
+Activating telnet is required when you actually want to install Debian instead of the original firmware.
+
 - Find out the IP address of the Linkstation (e.g. look it up in your router).
 - Download the acp_commander.jar from [github](https://github.com/Stonie/acp-commander) ([Mirror]( {{ site.url }}/files/acp_commander.jar)).
 - Turn off the firewall of your host computer *AND* the virtual machine if you use one.
 - In powershell or cmd run (replace LINKSTATION_IP_ADDRESS)
   `java -jar path\to\acp_commander.jar -t LINKSTATION_IP_ADDRESS -o`
 - In putty you can now telnet to the Linkstation and login.  
-  To turn on telnet permanently run:  
+  To turn on telnet permanently, run:  
   `echo "/usr/sbin/telnetd" >> /etc/init.d/rcS`
-- you should change the password for the root account:
+  (This step is only required if you want to permanently use the original firmware with an activated telnet access. Please note, that telnet is unsecure and activating it permanently is definetely a security risk.
+- you should at least change the password for the root account when you decide in favor of a permanent telnet access:
   `passwd`
 - Turn firewall back on.
 
@@ -77,6 +88,7 @@ run sh config-debian
 
 
 ## Install Debian 9 directly on a blank Linkstation harddrive
+You can configure th
 
 
 # Debian 9 Lack of RAM problem
