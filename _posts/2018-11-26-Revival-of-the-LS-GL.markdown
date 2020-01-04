@@ -8,26 +8,24 @@ categories: project
 ## Preparation of the Linkstation
 
 Insert an empty harddrive into the Linkstation.  
-When starting the Linkstation now, it will beep high-low meaning that it can't find the boot loader.
-Turn off again (unplug power).
+When starting the Linkstation now, it will beep high-low meaning that it can't find the boot image. The basic boot loader of the Linkstation will fallback to tftp and try to obtain the `uImage.buffalo` and `initrd.buffalo` files from an tftp server under 192.168.11.1.
 
 ## Development computer
 
-The software by Buffalo for maintaining the Linkstation is quite old and unfortunately does not run correctly under Windows 10. Even activating the compatibility mode does not help for it.
+The software by Buffalo for setting up and updating the Linkstation is quite old and unfortunately does not run correctly under Windows 10. Even activating the compatibility mode does not help for it.
 
 I found two ways to make the software run on modern computers:
 
 1. run it on a Windows 7 virtual machine (VM)
-2. run it on Linux using Wine.
+2. run it on Linux using Wine with the `droid` font package.
 
 ### Setting up the network adapters
 
-I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter.
+I am assuming that the computer that is used to run the software (host) has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter.
 
-Make sure that the VM is configured with one NAT network interface and one bridged adapter. In the VM change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
+Make sure that the VM is configured with one NAT network interface and one bridged adapter. In the VM, change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
 
-This setup allows you to access your network and internet normally over Wifi while connecting
-directly to the Linkstation over Ethernet at the same time.
+This setup allows you to access your network and internet normally over Wifi while connecting directly to the Linkstation over Ethernet at the same time.
 
 ## Install Original Linkstation Pro 1.15 firmware
 
@@ -48,15 +46,40 @@ directly to the Linkstation over Ethernet at the same time.
   The second menu point gives you the posibility to change to the language you need.
 
 ### Using Wine on Linux
+Instead of using a VM and the TFTP server provided from buffalo, `tftpd-hpa` can be used to transfer the uImage.buffalo and initrd.buffalo files. Like with the VM, the Ethernet adapter has to be configured for IP 192.168.11.1 and the Linkstation must be directly connected to the machine.
 
-LSUpdater.exe can be started using Wine 4.0.
+``` bash
+sudo apt install tftpd-hpa
+sudo systemctl start tftpd-hpa
+```
+
+find the tftpboot path by:
+
+``` bash
+$ cat /etc/default/tftpd-hpa
+# /etc/default/tftpd-hpa
+
+TFTP_USERNAME="tftp"
+TFTP_DIRECTORY="/home/matthias/tftpboot"
+TFTP_ADDRESS=":69"
+TFTP_OPTIONS="--secure --create"
+```
+
+place the uImage.buffalo and initrd.buffalo files from the TFTP_Boot_Recovery package into the `TFTP_DIRECTORY` folder. When booting the Linkstation now, it will start beeping (boot image not found) but it will pull the two files from the TFTP server and should then stop beeping.
+
+Now, LSUpdater.exe can be started using Wine 4.0.
 To show all fonts, the `droid` font package needs to be installed (e.g. using winetricks).
+
+``` bash
+wine LSUpdater.exe
+```
+The installation of the original firmware should proceed. When finished, turn off the Linkstation by holding the power button. Connect it normally to the network. You can now login into the webinterface. The web interface might be japanese, but you can simply login using the default credentials (`admin`, `password`)
+The second menu point gives you the posibility to change to the language you need.
 
 ## Activate telnet on the original firmware
 
 Activating telnet is required when you actually want to install Debian instead of the original firmware.
 
-- Find out the IP address of the Linkstation (e.g. look it up in your router).
 - Download the acp_commander.jar from [github](https://github.com/Stonie/acp-commander) ([Mirror]( {{ site.url }}/files/acp_commander.jar)).
 - Turn off the firewall of your host computer *AND* the virtual machine if you use one.
 - In powershell or cmd run (replace LINKSTATION_IP_ADDRESS)
