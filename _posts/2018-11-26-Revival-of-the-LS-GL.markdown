@@ -22,9 +22,9 @@ I found two ways to make the software run on modern computers:
 
 ### Setting up the network adapters
 
-I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter. Then you can configure the Ethernet adapter to use the IP adress 192.168.11.1 and subnetmask 255.255.255.0. This is required as the Linkstation will be connected directly to the computer without a router providing DHCP.
+I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter.
 
-When using an VM, forward the Wifi adapter into the Virtual Machine using NAT settings. Forward the Ethernet adapter in bridged mode. In the VM change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
+Make sure that the VM is configured with one NAT network interface and one bridged adapter. In the VM change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
 
 This setup allows you to access your network and internet normally over Wifi while connecting
 directly to the Linkstation over Ethernet at the same time.
@@ -48,6 +48,9 @@ directly to the Linkstation over Ethernet at the same time.
   The second menu point gives you the posibility to change to the language you need.
 
 ### Using Wine on Linux
+
+LSUpdater.exe can be started using Wine 4.0.
+To show all fonts, the `droid` font package needs to be installed (e.g. using winetricks).
 
 ## Activate telnet on the original firmware
 
