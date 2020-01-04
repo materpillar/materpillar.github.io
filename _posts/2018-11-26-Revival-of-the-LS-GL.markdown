@@ -6,20 +6,23 @@ categories: project
 ---
 
 ## Preparation of the Linkstation
+
 Insert an empty harddrive into the Linkstation.  
 When starting the Linkstation now, it will beep high-low meaning that it can't find the boot loader.
 Turn off again (unplug power).
 
 ## Development computer
+
 The software by Buffalo for maintaining the Linkstation is quite old and unfortunately does not run correctly under Windows 10. Even activating the compatibility mode does not help for it.
 
 I found two ways to make the software run on modern computers:
-1. run it on a Windows 7 virtual machine (VM) 
+
+1. run it on a Windows 7 virtual machine (VM)
 2. run it on Linux using Wine.
 
 ### Setting up the network adapters
 
-I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter. Then you can configure the Ethernet adapter to use the IP adress 192.168.11.1 and subnetmask 255.255.255.0. This is required as the Linkstation will be connected directly to the computer without a router providing DHCP. 
+I am assuming that the computer that is used to run the software has both a Wifi and an Ethernet adapter and that it is connected to the normal home network using the Wifi adapter. Then you can configure the Ethernet adapter to use the IP adress 192.168.11.1 and subnetmask 255.255.255.0. This is required as the Linkstation will be connected directly to the computer without a router providing DHCP.
 
 When using an VM, forward the Wifi adapter into the Virtual Machine using NAT settings. Forward the Ethernet adapter in bridged mode. In the VM change the IP adress of the bridged network adapter to 192.168.11.1 and subnetmask to 255.255.255.0.
 
@@ -28,7 +31,7 @@ directly to the Linkstation over Ethernet at the same time.
 
 ## Install Original Linkstation Pro 1.15 firmware
 
-### Using the Windows 7 VM:
+### Using the Windows 7 VM
 
 - Download the TFTP Boot Recovery Package from Buffalo website ([Mirror]({{ site.url }}/files/TFTP_Boot_Recovery_LS-GL_1.11.exe)) and unpack it.
 - Download the Firmware Updater 1.15 from the Buffalo website ([Mirror]({{ site.url }}/files/LS-GL_fw1.15.zip))
@@ -46,9 +49,8 @@ directly to the Linkstation over Ethernet at the same time.
 
 ### Using Wine on Linux
 
-
-
 ## Activate telnet on the original firmware
+
 Activating telnet is required when you actually want to install Debian instead of the original firmware.
 
 - Find out the IP address of the Linkstation (e.g. look it up in your router).
@@ -65,11 +67,12 @@ Activating telnet is required when you actually want to install Debian instead o
 - Turn firewall back on.
 
 ## Install Debian 9 over the original firmware
+
 - Download the Debian 9 package from the official [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/network-console/buffalo/lspro_ls-gl/ ).
 - Copy the 3 files to your Linkstation (for e.g. `share`)
 - connect via telnet to your Linkstation
 
-```
+``` bash
 # change into /boot
 cd /boot
 # rename original boot files
@@ -83,15 +86,16 @@ cp /mnt/disk1/share/uinitrd.buffalo .
 run sh config-debian
 # reboot
 ```
+
 - After rebooting, find out the IP of the linkstation again
 - ssh to Linkstation with user `installer` and password `install`
 
-
 ## Install Debian 9 directly on a blank Linkstation harddrive
+
 You can configure th
 
+## Debian 9 Lack of RAM problem
 
-# Debian 9 Lack of RAM problem
 Debian 9 requires 128 MB of RAM. While the LS-GL is equipped with exactly that amount of RAM, in the standard settings after installation,
 the /run partition is only given 13MB. This is not enough to properly install and start deamons like samba.
 {% highlight bash %}
@@ -132,20 +136,20 @@ mkimage -A arm -O linux -T ramdisk -C gzip -a 0x00000000 -e 0x00000000 -n initra
 
 https://www.debian.org/releases/stretch/amd64/ch03s04.html.en
 
-# Settings locale failed error
+## Settings locale failed error
 
 
 
 
-# Samba installation
+## Samba installation
 
 
 
-# Power Supply Pin out
+## Power Supply Pin out
 
 The LS-GL power supply uses a 5-pin connector to power the circuit boards and fans.
 
-```
+``` text
 1 - red (5V) - 3
 2 - black (GND) - 4
 3 - black (GND) - 5
@@ -153,16 +157,18 @@ The LS-GL power supply uses a 5-pin connector to power the circuit boards and fa
 5 - orange (12V) - 7
 ```
 
-# Reinstalling the Linkstation when already running Debian
+## Reinstalling the Linkstation when already running Debian
 
 login using ssh
 make sure to have the installers uImage.buffalo and initrd.buffalo copied on the linkstation
 alternative get it directly using wget
 
-as user or with sudo:
-{% highlight bash %}
-rm /boot/*
-{% endhighlight %}
+``` bash
+wget http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/network-console/buffalo/lspro_ls-gl/uImage.buffalo
+wget http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/network-console/buffalo/lspro_ls-gl/initrd.buffalo
+sudo rm /boot/*
+cp uImage.buffalo /boot/uImage.buffalo
+cp initrd.buffalo /boot/initrd.buffalo
+```
 
-cp uImage and initrd to /boot
 login using ssh with user "installer" and password "install"
