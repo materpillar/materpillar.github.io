@@ -1,59 +1,132 @@
 ---
 layout: post
-title:  "Making a UniFi Conroller from a Raspberry Pi 2B+"
-date:   2018-12-10 22:00:00 +0200
+title:  "UniFi Conroller and Wireguard server on Raspberry Pi 3B+"
+date:   2020-04-13 22:00:00 +0200
 categories: project
 ---
 
+# Unifi Controller and Wireguard for local network
+Setup on Ubuntu Server 20.04 on Raspberry Pi 3:
 
-# Vorgeschichte
+## Setup timezones
+```bash
+sudo timedatectl set-timezone Europe/Berlin
+sudo hostnamectl set-hostname UniPi
+```
 
-Seit irgendwann Mitte 2015 bin ich Besitzer eines Raspberry Pi 2 Model B. Diesen habe ich über die Jahre insbesondere als Mediencenter mit Kodi benutzt.
-Zwischenzeitlich hatte ich daran auch einen Infrarotempfänger um ihn mit einer alten Fernsehfernbedienung benutzen zu können. Irgendwann ist das Projekt dann eingeschlafen.
-Das lag an verschiedenen Problemchen
-* Das erste Netzteil, das ich verwendet habe, hat ohne Last unglaublich gefiept (3-Ampere-Billig-Ladegerät importiert...)
-* Das Netzteil, das ich als Ersatz von Conrad bestellt hatte (MeanWell) lieferte anstatt der versprochenen 3 Ampere so wenig, dass selbst ohne angeschlossene USB-Festplatte der Pi bereits Strommangel meldete.
-* Die Integration eines ordentlichen Schalters und LEDs in ein umgebautes Linkstation Pro Case wurde sehr aufwendig und ab einem bestimmten Punkt nicht mehr fortgesetzt.
-* Ein Case das ich selber bauen wollte, wurde leider nie realisiert.
+## Setup Wifi (optional, when not using wired connection)
 
-Irgendwann kam das neue Raspberry Model mit WLAN und dann sogar irgendwann mit Gigabit-Ethernet und PoE, sodass ich ein zukünftiges Mediencenter nur damit umsetzen wollte.
-Doch was tun mit dem vorhandenen 2er Model?
+Setup WPA supplicant file with SSID and passphrase
+```bash
+sudo apt install wireless-tools wpasupplicant dhcpcd5 
+wpa_passphrase <SSID> <passphrase> | sudo tee /etc/wpa_supplicant.conf
+```
 
-Durch mein Praktikum hatte ich einige Skills in Sachen Löten und generelle Elektronik-Eigenbau erworben. Das Zuhause meiner Eltern hatten wir schon vor einiger Zeit zu einem Power-over-Ethernet-Netzwerk aufgerüstet, um Switche und Access-Points auf allen Stockwerken ohne lästige Netzkabel einbauen zu können.
-Das Netzwerk basiert dabei auf Komponenten von Unifi. Diese benötigen (zumindest zur Einrichtung) einen PC mit installiertem Controller. Übergangsweise wurde der auf dem PC meines Vaters installiert. Das hatte allerdings den Nachteil, dass ich immer an diesen musste, wenn ich etwas umstellen wollte.
-Auch ein Ausfall des PCs könnte eventuell Probleme bereiten.
+Activate wpa_supplicant service and configure to use the /etc/wpa_supplicant.conf file
+```bash
+sudo cp /lib/systemd/system/wpa_supplicant.service /etc/systemd/wpa_supplicant.service
+sudo vim /etc/systemd/wpa_supplicant.service
+```
+Adjust the the line with the `ExecStart` parameter:
+```
+ExecStart=/sbin/wpa_supplicant -u -s -c /etc/wpa_supplicant.conf -i wlan0
+```
+Restart the wpa_supplicant service
+```bash
+sudo systemctl enable wpa_supplicant.service
+```
 
-So entstand die Idee einen eigenen UnifiCloud Controller aus dem alten Raspberry zu basteln. Natürlich mit PoE-Unterstützung.
-Ich möchte hier darauf hinweisen, dass das umgesetzte PoE keinem Standard entspricht! Es funktioniert mit passiven 24V PoE, welcher sich in unserem Switch so konfiguieren lies.
+## Setup IP address
+Generate end edit the netplan configuration
+```bash
+sudo netplan generate
+sudo vim /etc/netplan/50-cloud-init.yaml 
+```
 
-Die urspünglichste Idee zur Schaltung und zum Aufbau habe ich von hier:
-https://www.instructables.com/id/PiPoE-powering-a-Raspberry-Pi-over-Ethernet/
+Adjust the file to:
+```yaml
+# This file is generated from information provided by the datasource.  Changes
+# to it will not persist across an instance reboot.  To disable cloud-init's
+# network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
+network:
+    ethernets:
+        eth0:
+            dhcp4: no
+            dhcp6: no
+            addresses: [192.168.XX.XX/24, ]
+            gateway4: 192.168.XX.XX
+            nameservers:
+                    addresses: [192.168.XX.XX, ]
+    version: 2
+```
+Apply the configuration:
+```bash
+sudo netplan apply
+```
 
+## Install MongoDB 3.4 and Unifi Controller package
+```bash
+sudo apt install openjdk-8-jre-headless 
+sudo apt install wget
+wget -q0 - https://www.mongodb.org/static/pgp/server-3.4.asc | sudo apt-key add -
+echo "deb https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+sudo apt install mongodb
+wget https://dl.ui.com/unifi/5.12.66/unifi_sysvinit_all.deb
+sudo dpkg -i unifi_sysvinit_all.deb 
+```
 
-# Den Raspberry Pi 2B+ PoE-fähig machen
+## Configure proper mail SMTP and stuff
+I would like to use an external SMTP server to send emails from unattendend upgrades
+to my personal email adress:
+```bash
+sudo apt install exim4
+sudo dpkg-reconfigure exim4-config
+```
+Choose
+- General type of mail configuration: mail sent by smarthost; received via SMTP or fetchmail
+- System mail name: UniPi
+- IP-address to listen on for incoming SMTP connections: 127.0.0.1 ; ::1
+- Other destinations for which mail is accepted: UniPi
+- Machines to relay mail for: <leave this blank>
+- IP address or host name of the outgoing smarthost: <mail.example.com::587>
+- Hide local mail name in outgoing mail?
+  Yes - all outgoing mail will appear to come from your smarthost account
+  **No - mail sent with a valid sender name header will keep the sender’s name**
+- Keep number of DNS-queries minimal (Dial-on-Demand)? No
+- Delivery method for local mail: <choose the one you prefer>
+- Split configuration file into small files? No
 
+Edit passwd.client
+```bash
+sudo vim /etc/exim4/passwd.client
+```
+and add
+```
+mail.example.com:<login>:<password>
+```
+run
+```bash
+sudo update-exim4.conf
+sudo systemctl restart exim4.service
+```
 
+### Configure the correct from-adressess to the one from our smtp server:
+In /etc/email-adresses, add:
+```bash
+ubuntu <from-mail-adress>
+root <from-mail-adress>
+```
 
-24 Volt passive PoE-fähig
+#### Edit the from name for the user accounts
+```bash 
+sudo chfn -f 'ubuntu at UniPi' ubuntu
+sudo chfn -f 'root at UniPi' root
+```
 
-
-# Software
-
-## Rasbpian Lite
-
-### username pi change
-
-### unattended-upgrade
-https://wiki.debian.org/UnattendedUpgrades
-
-
-## unifi installation
-
-Install java-8 first!
-sudo apt-get install openjdk-8-headless
-
-https://help.ubnt.com/hc/en-us/articles/220066768-UniFi-How-to-Install-and-Update-via-APT-on-Debian-or-Ubuntu
-
-### Adding the repository
-
-### Configuring
+## Configure automatic update and upgrade
+```bash
+sudo vim /etc/apt/apt.conf.d/50unattended-upgrades 
+sudo vim /etc/apt/apt.conf.d/20auto-upgrades 
+```
