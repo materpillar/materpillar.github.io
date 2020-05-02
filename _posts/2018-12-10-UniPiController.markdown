@@ -120,7 +120,7 @@ Create file `/etc/wireguard/wg0.conf` by opening `vim` and enter:
 ```ini
 ## Server configuration
 [Interface]
-Address = 10.0.0.1/24 # Different private IP range from your LAN setup above!
+Address = 10.0.0.0/24 # Different private IP range from your LAN setup above!
 PrivateKey = <private key from server_private_key file>
 ListenPort = 51820
 # Adjust iptables firewall when interface is up
@@ -146,7 +146,7 @@ PrivateKey = <private key of the client>
 ## Server
 [Peer]
 PublicKey = <public key of the server>
-Endpoint = <server IP address>:<port>
+Endpoint = <server IP address>:51820
 AllowedIPs = 0.0.0.0/0 # Route all internet traffic through the VPN tunnel (optional)
 # DNS = <DNS server in target network> # Todo: Find exacltly out, what used for.
 ```
@@ -226,10 +226,10 @@ Choose for the upcoming options:
 - IP-address to listen on for incoming SMTP connections: `127.0.0.1 ; ::1`
 - Other destinations for which mail is accepted: `UniPi`
 - Machines to relay mail for: `<leave this blank>`
-- IP address or host name of the outgoing smarthost: <mail.example.com::587>
+- IP address or host name of the outgoing smarthost: `smtp.example.com:587`
 - Hide local mail name in outgoing mail?
-  Yes - all outgoing mail will appear to come from your smarthost account
-  **No - mail sent with a valid sender name header will keep the sender’s name**
+  - Yes - all outgoing mail will appear to come from your smarthost account
+  - `No - mail sent with a valid sender name header will keep the sender’s name`
 - Keep number of DNS-queries minimal (Dial-on-Demand)? `No`
 - Delivery method for local mail: `<choose the one you prefer>`
 - Split configuration file into small files? `No`
@@ -240,11 +240,24 @@ In `/etc/exim4/passwd.client` add:
 mail.example.com:<login>:<password>
 ```
 
+Make this file only readable for user
+
+```bash
+sudo chmod go-rwx /etc/exim4/passwd.client
+```
+
 apply updated settings:
 
 ```bash
 sudo update-exim4.conf
 sudo systemctl restart exim4.service
+```
+
+Test:
+
+```bash
+mail -s "Testmail" your-mail@gmail.com
+# End writing and do sending by Ctrl+D
 ```
 
 ### Configure the correct from-adressess to the one from our smtp server
