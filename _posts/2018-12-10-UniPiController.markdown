@@ -102,7 +102,7 @@ sudo systemctl enable unifi.service
 Install Wireguard tools:
 
 ```bash
-sudo apt install wireguard-tools
+sudo apt install wireguard
 ```
 
 Generate server private and public key and save them into files.  
@@ -120,7 +120,7 @@ Create file `/etc/wireguard/wg0.conf` by opening `vim` and enter:
 ```ini
 ## Server configuration
 [Interface]
-Address = 192.168.XX.XX/24 # IP address which is in the netplan!
+Address = 10.0.0.1/24 # Different private IP range from your LAN setup above!
 PrivateKey = <private key from server_private_key file>
 ListenPort = 51820
 # Adjust iptables firewall when interface is up
@@ -132,8 +132,7 @@ SaveConfig = true
 ## Clients
 [Peer]
 PublicKey = <public key of the client>
-# A subnetmask of 32 is exactly one IP adress:
-AllowedIPs = 192.168.30.33/32
+AllowedIPs = 10.0.0.10/32 # A subnetmask of 32 is exactly one IP adress
 ```
 
 ### Template for client configuration files
@@ -141,19 +140,16 @@ AllowedIPs = 192.168.30.33/32
 ```ini
 ## Cient configuration
 [Interface]
-Address = 192.168.XX.XX/24 # IP address as defined by the target network
+Address = 10.0.0.10/24 # IP address as defined by the target network
 PrivateKey = <private key of the client>
 
 ## Server
 [Peer]
 PublicKey = <public key of the server>
 Endpoint = <server IP address>:<port>
-# Route all internet traffic through the VPN tunnel
-AllowedIPs = 0.0.0.0/0
-DNS = <DNS server in target network>
-
+AllowedIPs = 0.0.0.0/0 # Route all internet traffic through the VPN tunnel (optional)
+# DNS = <DNS server in target network> # Todo: Find exacltly out, what used for.
 ```
-
 
 ### Configure IPv4 package forwarding
 
