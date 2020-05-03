@@ -240,12 +240,6 @@ In `/etc/exim4/passwd.client` add:
 mail.example.com:<login>:<password>
 ```
 
-Make this file only readable for user
-
-```bash
-sudo chmod go-rwx /etc/exim4/passwd.client
-```
-
 apply updated settings:
 
 ```bash
@@ -265,8 +259,8 @@ mail -s "Testmail" your-mail@gmail.com
 In `/etc/email-adresses`, add:
 
 ```bash
-ubuntu <from-mail-adress>
-root <from-mail-adress>
+ubuntu: from-mail-adress@example.org
+root: from-mail-adress@example.org
 ```
 
 #### Edit the from name for the user accounts
