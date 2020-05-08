@@ -176,7 +176,7 @@ commented, choose what you want.
 sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
 ```
 
-To setup a mail relay using an internet mail provider, see [here](2020-05-07-Configure-Exim-using-smarthost).
+To setup a mail relay using an internet mail provider, see [here](Configure-Exim-using-smarthost).
 
 ## TODO
 
