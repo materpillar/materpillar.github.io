@@ -14,7 +14,27 @@ sudo timedatectl set-timezone Europe/Berlin
 sudo hostnamectl set-hostname UniPi
 ```
 
-## TODO: CREATE new user
+## Create new admin user
+
+To increase security, the standard `ubuntu` user should be removed. Instead,
+you should create a new account with a username of your choice.
+
+list the groups of the default `ubuntu` user:
+```bash
+groups ubuntu
+```
+
+```bash
+sudo useradd -m <username>
+```
+
+Add the new user to the groups which the original user has.
+Leave out the `ubuntu` group.
+The argument of the -G option has to be a comma seperated list.
+
+```bash
+sudo usermod -a -G <groups from the ubuntu user as comma seperated list> <username>
+```
 
 ## Setup static IP address
 
