@@ -50,14 +50,34 @@ sudo netplan apply
 ```
 
 ## Install MongoDB 3.4 and Unifi Controller package
+As of 22 May 2020, Unifi Controller only supports MongoDB version 3.4.
+To install this version on Focal Fossa for arm64, additionally libssl1.0.2
+is required.
 
 ```bash
 sudo apt install openjdk-8-jre-headless
 sudo apt install wget
-wget -q0 - https://www.mongodb.org/static/pgp/server-3.4.asc | sudo apt-key add -
+```
+
+### Install libssl for mongodb 3.4
+```bash
+wget https://launchpad.net/ubuntu/+source/openssl1.0/1.0.2n-1ubuntu5/+build/14503127/+files/libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+rm libssl1.0.0_1.0.2n-1ubuntu5_arm64.deb
+```
+
+### Install MongoDB3.4 repository and install mongodb-org
+```bash
+wget -qO - https://www.mongodb.org/static/pgp/server-3.4.asc | sudo apt-key add
 echo "deb https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
-sudo apt install mongodb
-wget https://dl.ui.com/unifi/5.12.66/unifi_sysvinit_all.deb
+sudo apt install mongodb-org
+```
+
+### Install the latest Unifi deb package
+Replace the version number in the link with the latest version available on the unifi website.
+
+```bash
+wget https://dl.ui.com/unifi/5.12.72/unifi_sysvinit_all.deb
 sudo dpkg -i unifi_sysvinit_all.deb
 ```
 
@@ -87,7 +107,6 @@ To setup a mail relay using an internet mail provider, see [here](Configure-Exim
 
 ## TODO
 
-- Create new user
 - DNS configurations and test
 - Firewall rules: For Unifi allow port 8080 (inform) only internally.
 - Strict unifi: Allow everything only from internal
