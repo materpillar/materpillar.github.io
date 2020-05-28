@@ -71,13 +71,15 @@ sudo netplan generate
 sudo netplan apply
 ```
 
-## Install and configure Wireguard
+## Server: Install and configure Wireguard
 
 Install Wireguard tools:
 
 ```bash
 sudo apt install wireguard
 ```
+
+### Create server public and private key
 
 Generate server private and public key and save them into files.  
 Note: Delete these files when finishing configuration!
@@ -94,22 +96,25 @@ Create file `/etc/wireguard/wg0.conf` by opening `vim` and enter:
 ```ini
 ## Server configuration
 [Interface]
-Address = 10.0.0.0/24 # A different subnet to your fixed LAN setup above!
+Address = 10.0.0.0/24
 PrivateKey = <private key from server_private_key file>
 ListenPort = 51820
 # Adjust iptables firewall when interface is up
 # This gives connected peers access to your LAN subnet (NAT) 
 PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-# Allow adding of peer while server is running
-SaveConfig = true
 
 ## Client 1
 [Peer]
 PublicKey = <public key of the client>
-AllowedIPs = 10.0.0.10/32 # A subnetmask of 32 is exactly one IP adress
-
+AllowedIPs = 10.0.0.10/32
 ```
+
+Notes:
+- A subnetmask of `/32` is exactly one IP address.
+- The IP address of the interface must be in a different subnet, than the Ethernet subnet.
+- Before adding a new peer, or before otherwise changing the configuration stop the wireguard interface
+  by using `sudo wg-quick down`.
 
 ### Configure IPv4 package forwarding
 
@@ -117,22 +122,6 @@ In `/etc/sysctl.conf` uncomment:
 
 ```bash
 net.ipv4.ip_forward=1
-```
-
-### Template for client configuration files
-
-```ini
-## Cient configuration
-[Interface]
-Address = 10.0.0.10/24 # IP address as defined by the target network
-PrivateKey = <private key of the client>
-
-## Server
-[Peer]
-PublicKey = <public key of the server>
-Endpoint = <server IP address>:51820
-AllowedIPs = 0.0.0.0/0 # Route all internet traffic through the VPN tunnel (optional)
-# DNS = <DNS server in target network> # Todo: Find out, what and how used exactly.
 ```
 
 ### Delete the files containing private and public key
@@ -181,6 +170,38 @@ ip a
 sudo wg show
 ```
 
+### Client: Template for client configuration files
+
+Install Wireguard following a manual for your platform.
+Save the following configuration file `client-config.conf`:
+
+```ini
+## Cient configuration
+[Interface]
+Address = 10.0.0.10/24 # IP address as defined by the target network
+PrivateKey = <private key of the client>
+
+## Server
+[Peer]
+PublicKey = <public key of the server>
+Endpoint = <server IP address>:51820
+AllowedIPs = 0.0.0.0/0 # Route all internet traffic through the VPN tunnel (optional)
+PersistentKeepalive = 25
+```
+
+### Create QR code of client settings
+
+install `qrencode`:
+
+```bash
+sudo apt install qrencode
+```
+
+```bash
+qrencode -t ansiutf8 -r client_config.conf
+```
+
+
 ## Configure automatic update and upgrade
 
 Set the udate and upgrade interval in the following file:
@@ -197,11 +218,3 @@ sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
 ```
 
 To setup a mail relay using an internet mail provider, see [here](Configure-Exim-using-smarthost).
-
-## TODO
-
-- Create new user
-- DNS configurations and test
-- Firewall rules: For Unifi allow port 8080 (inform) only internally.
-- Strict unifi: Allow everything only from internal
-- SSH two factor authentication
