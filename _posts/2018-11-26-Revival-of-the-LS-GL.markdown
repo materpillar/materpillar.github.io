@@ -92,6 +92,9 @@ Activating telnet is required when you actually want to install Debian instead o
   `passwd`
 - Turn firewall back on.
 
+### Fan not running
+
+
 ## Install Debian 9 over the original firmware
 
 - Download the Debian 9 package from the official [Website](http://ftp.de.debian.org/debian/dists/stretch/main/installer-armel/current/images/orion5x/network-console/buffalo/lspro_ls-gl/ ).
@@ -165,12 +168,6 @@ https://www.debian.org/releases/stretch/amd64/ch03s04.html.en
 ## Settings locale failed error
 
 
-
-
-## Samba installation
-
-
-
 ## Power Supply Pin out
 
 The LS-GL power supply uses a 5-pin connector to power the circuit boards and fans.
@@ -198,3 +195,15 @@ cp initrd.buffalo /boot/initrd.buffalo
 ```
 
 login using ssh with user "installer" and password "install"
+
+## Links
+
+https://www.rudiswiki.de/wiki9/FanControl
+http://www.mztn.org/kpro_memo/kpro_micon.html
+https://opensource.buffalo.jp/ls-gl-112a.html
+https://sites.google.com/site/shihsung/88fxxxx-soc/ls-gl
+
+https://github.com/ev3dev/flash-kernel
+
+https://github.com/archlinuxarm/u-boot
+
