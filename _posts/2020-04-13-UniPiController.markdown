@@ -5,15 +5,6 @@ date:   2020-04-13 22:00:00 +0200
 categories: project
 ---
 
-Setup on Ubuntu Server 20.04 on Raspberry Pi 3:
-
-## Setup timezone and hostname
-
-```bash
-sudo timedatectl set-timezone Europe/Berlin
-sudo hostnamectl set-hostname UniPi
-```
-
 ## Setup static IP address
 
 Generate end edit the netplan configuration
@@ -87,27 +78,8 @@ sudo dpkg -i unifi_sysvinit_all.deb
 sudo systemctl enable unifi.service
 ```
 
-
-## Configure automatic update and upgrade
-
-Set the udate and upgrade interval in the following file:
-``` bash
-sudo vim /etc/apt/apt.conf.d/20auto-upgrades
-```
-See [https://wiki.debian.org/UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)
-
-The setting options in the following config file are well
-commented, choose what you want.
-
-```bash
-sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
-```
-
-To setup a mail relay using an internet mail provider, see [here](Configure-Exim-using-smarthost).
-
 ## TODO
 
 - DNS configurations and test
 - Firewall rules: For Unifi allow port 8080 (inform) only internally.
 - Strict unifi: Allow everything only from internal
-- SSH two factor authentication

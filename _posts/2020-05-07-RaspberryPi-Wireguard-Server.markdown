@@ -5,36 +5,8 @@ date:   2020-04-13 22:00:00 +0200
 categories: project
 ---
 
-Setup an Ubuntu Server 20.04 on your favorite hardware.
-
-## Setup timezone and hostname
-
-```bash
-sudo timedatectl set-timezone Europe/Berlin
-sudo hostnamectl set-hostname UniPi
-```
-
-## Create new admin user
-
-To increase security, the standard `ubuntu` user should be removed. Instead,
-you should create a new account with a username of your choice.
-
-list the groups of the default `ubuntu` user:
-```bash
-groups ubuntu
-```
-
-```bash
-sudo useradd -m <username>
-```
-
-Add the new user to the groups which the original user has.
-Leave out the `ubuntu` group.
-The argument of the -G option has to be a comma seperated list.
-
-```bash
-sudo usermod -a -G <groups from the ubuntu user as comma seperated list> <username>
-```
+This manual is assuming that the server is setup according to the
+[2020-08-18-basic-server-setup]() guide.
 
 ## Setup static IP address
 
@@ -151,9 +123,7 @@ sudo systemctl enable wg-quick@wg0.service
 ### Adjust and enable ufw firewall
 
 ```bash
-sudo ufw allow 22/tcp
 sudo ufw allow 51820/udp
-sudo ufw enable
 ```
 
 ### Verify
@@ -200,21 +170,3 @@ sudo apt install qrencode
 ```bash
 qrencode -t ansiutf8 -r client_config.conf
 ```
-
-
-## Configure automatic update and upgrade
-
-Set the udate and upgrade interval in the following file:
-``` bash
-sudo vim /etc/apt/apt.conf.d/20auto-upgrades
-```
-See [https://wiki.debian.org/UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)
-
-The setting options in the following config file are well
-commented, choose what you want.
-
-```bash
-sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
-```
-
-To setup a mail relay using an internet mail provider, see [here](Configure-Exim-using-smarthost).
